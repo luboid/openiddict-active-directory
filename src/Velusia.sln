@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32328.378
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Velusia.Client", "Velusia.Client\Velusia.Client.csproj", "{5D61D342-2512-4A5C-A047-34E15811F0DC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Velusia.Server", "Velusia.Server\Velusia.Server.csproj", "{C6F2980D-CD46-443A-8D30-815A63061AE5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B4245872-013A-4AA2-BB4E-464A140E3235}"
+	ProjectSection(SolutionItems) = preProject
+		..\README.md = ..\README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5D61D342-2512-4A5C-A047-34E15811F0DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D61D342-2512-4A5C-A047-34E15811F0DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D61D342-2512-4A5C-A047-34E15811F0DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D61D342-2512-4A5C-A047-34E15811F0DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6F2980D-CD46-443A-8D30-815A63061AE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6F2980D-CD46-443A-8D30-815A63061AE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6F2980D-CD46-443A-8D30-815A63061AE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6F2980D-CD46-443A-8D30-815A63061AE5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F696BD0C-7146-4554-BC64-1D456C8BADFA}
+	EndGlobalSection
+EndGlobal
