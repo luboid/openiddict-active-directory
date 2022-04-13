@@ -360,24 +360,18 @@ public class AuthorizationController : Controller
         switch (claim.Type)
         {
             case Claims.Name:
-                yield return Destinations.AccessToken;
-
                 if (principal.HasScope(Scopes.Profile))
                     yield return Destinations.IdentityToken;
 
                 yield break;
 
             case Claims.Email:
-                yield return Destinations.AccessToken;
-
                 if (principal.HasScope(Scopes.Email))
                     yield return Destinations.IdentityToken;
 
                 yield break;
 
             case Claims.Role:
-                yield return Destinations.AccessToken;
-
                 if (principal.HasScope(Scopes.Roles))
                     yield return Destinations.IdentityToken;
 
