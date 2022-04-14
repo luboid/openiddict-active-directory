@@ -164,7 +164,7 @@ public class AuthorizationController : Controller
 
                 principal.SetAuthorizationId(await _authorizationManager.GetIdAsync(authorization));
 
-                await FixClaimsDestinations(user, principal);
+                await ExtendPrincipal(principal, user);
 
                 return SignIn(principal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
 
@@ -182,7 +182,8 @@ public class AuthorizationController : Controller
                     }));
 
             // In every other case, render the consent form.
-            default: return View(new AuthorizeViewModel
+            default:
+                return View(new AuthorizeViewModel
             {
                 ApplicationName = await _applicationManager.GetDisplayNameAsync(application),
                 Scope = request.Scope
@@ -251,7 +252,7 @@ public class AuthorizationController : Controller
 
         principal.SetAuthorizationId(await _authorizationManager.GetIdAsync(authorization));
 
-        await FixClaimsDestinations(user, principal);
+        await ExtendPrincipal(principal, user);
 
         // Returning a SignInResult will ask OpenIddict to issue the appropriate access/identity tokens.
         return SignIn(principal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
@@ -324,7 +325,7 @@ public class AuthorizationController : Controller
                     }));
             }
 
-            await FixClaimsDestinations(user, principal);
+            await ExtendPrincipal(principal, user);
 
             // Returning a SignInResult will ask OpenIddict to issue the appropriate access/identity tokens.
             return SignIn(principal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
@@ -333,21 +334,46 @@ public class AuthorizationController : Controller
         throw new InvalidOperationException("The specified grant type is not supported.");
     }
 
-    private async Task FixClaimsDestinations(User user, ClaimsPrincipal principal)
+    private async Task ExtendPrincipal(ClaimsPrincipal principal, User user)
     {
-        foreach (var claim in principal.Claims)
+        var identity = principal.Identity as ClaimsIdentity;
+        if (principal.HasScope(Scopes.Email) && !string.IsNullOrWhiteSpace(user.EmailAddress))
         {
-            claim.SetDestinations(GetDestinations(claim, principal));
+            AddClaim(identity, Claims.Email, user.EmailAddress);
+        }
+
+        if (principal.HasScope(Scopes.Phone) && !string.IsNullOrWhiteSpace(user.PhoneNumber))
+        {
+            AddClaim(identity, Claims.PhoneNumber, user.EmailAddress);
         }
 
         if (principal.HasScope(Scopes.Roles))
         {
-            var identity = principal.Identity as ClaimsIdentity;
             foreach (var role in await _signInManager.GetRolesAsync(user))
             {
-                identity.AddClaim(role);
-                role.SetDestinations(Destinations.IdentityToken);
+                AddClaim(identity, role);
             }
+        }
+
+        foreach (var claim in principal.Claims)
+        {
+            claim.SetDestinations(GetDestinations(claim, principal));
+        }
+    }
+
+    private static void AddClaim(ClaimsIdentity identity, string type, string value)
+        {
+        if (identity.FindFirst(x => x.Type.Equals(type) && x.Value?.Equals(value) == true) == null)
+            {
+            identity.AddClaim(type, value);
+            }
+        }
+
+    private static void AddClaim(ClaimsIdentity identity, Claim claim)
+    {
+        if (identity.FindFirst(x => x.Type.Equals(claim.Type) && x.Value?.Equals(claim.Value) == true) == null)
+        {
+            identity.AddClaim(claim);
         }
     }
 
@@ -359,32 +385,33 @@ public class AuthorizationController : Controller
 
         switch (claim.Type)
         {
-            case Claims.Name:
+            case Claims.Nickname:
+                yield return Destinations.IdentityToken;
                 yield return Destinations.AccessToken;
+                yield break;
 
+            case Claims.AuthenticationMethodReference:
+            case Claims.Name:
                 if (principal.HasScope(Scopes.Profile))
                     yield return Destinations.IdentityToken;
 
                 yield break;
 
             case Claims.Email:
-                yield return Destinations.AccessToken;
-
                 if (principal.HasScope(Scopes.Email))
                     yield return Destinations.IdentityToken;
 
                 yield break;
 
             case Claims.Role:
-                yield return Destinations.AccessToken;
-
                 if (principal.HasScope(Scopes.Roles))
                     yield return Destinations.IdentityToken;
 
                 yield break;
 
             // Never include the security stamp in the access and identity tokens, as it's a secret value.
-            case "AspNet.Identity.SecurityStamp": yield break;
+            case "AspNet.Identity.SecurityStamp":
+                yield break;
 
             default:
                 yield return Destinations.AccessToken;

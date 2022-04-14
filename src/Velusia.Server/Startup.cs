@@ -111,6 +111,8 @@ public class Startup
                        .EnableTokenEndpointPassthrough()
                        .EnableUserinfoEndpointPassthrough()
                        .EnableStatusCodePagesIntegration();
+
+                options.RegisterClaims(Claims.Nickname, Claims.Email, Claims.Role);
             })
 
             // Register the OpenIddict validation components.

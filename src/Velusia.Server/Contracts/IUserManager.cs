@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Velusia.Server.Contracts
@@ -9,6 +10,6 @@ namespace Velusia.Server.Contracts
 
         Task<User> GetUserAsync(ClaimsPrincipal principal);
 
-        Task<string[]> GetRolesAsync(User user);
+        Task<IList<string>> GetRolesAsync(User user);
     }
 }

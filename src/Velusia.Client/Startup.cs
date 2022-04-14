@@ -37,21 +37,6 @@ public class Startup
             options.GetClaimsFromUserInfoEndpoint = true;
             options.SaveTokens = true;
 
-            // options.Events.OnTokenResponseReceived = (a) =>
-            // {
-            //     return System.Threading.Tasks.Task.CompletedTask;
-            // };
-            //
-            // options.Events.OnTicketReceived = (a) =>
-            // {
-            //     return System.Threading.Tasks.Task.CompletedTask;
-            // };
-            //
-            // options.Events.OnUserInformationReceived = (a) =>
-            // {
-            //     return System.Threading.Tasks.Task.CompletedTask;
-            // };
-
             // Use the authorization code flow.
             options.ResponseType = OpenIdConnectResponseType.Code;
             options.AuthenticationMethod = OpenIdConnectRedirectBehavior.RedirectGet;

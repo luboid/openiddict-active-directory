@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
+using System.Collections.Generic;
 using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
 using System.Linq;
@@ -28,6 +29,13 @@ namespace Velusia.Server.ActiveDirectory
 
         public Task<User> GetUserAsync(string userName, string password)
         {
+#if DEBUG
+            if (IsTestPrincipal(userName, password))
+            {
+                return Task.FromResult(CreateTestUser());
+            }
+#endif
+
             User adUser = null;
             if (!(string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(password)))
             {
@@ -57,6 +65,13 @@ namespace Velusia.Server.ActiveDirectory
             User adUser = null;
             if (principal?.Identity?.IsAuthenticated == true)
             {
+#if DEBUG
+                if (IsTestPrincipal(principal))
+                {
+                    return Task.FromResult(CreateTestUser());
+                }
+#endif
+
                 try
                 {
                     using var context = new PrincipalContext(_settings.CurrentValue.ContextType, _settings.CurrentValue.Server, null, ContextOptions.Negotiate);
@@ -96,20 +111,57 @@ namespace Velusia.Server.ActiveDirectory
             };
         }
 
-        public Task<string[]> GetRolesAsync(User user)
+        public Task<IList<string>> GetRolesAsync(User user)
         {
-            string[] roles = null;
+            IList<string> roles = null;
             if (user.Groups?.Length > 0 && _settings.CurrentValue.Roles?.Length > 0)
             {
                 roles = _settings.CurrentValue
                     .Roles
                     .Where(r => user.Groups.Contains(r.GroupName, StringComparer.InvariantCultureIgnoreCase))
                     .Select(r => r.Name)
-                    .ToArray();
+                    .ToList();
             }
 
-            return Task.FromResult(roles ?? Array.Empty<string>());
+            return Task.FromResult(roles ?? new List<string>());
         }
+
+#if DEBUG
+        private bool IsTestPrincipal(string userName, string password)
+        {
+            return IsTestPrincipal(userName) || password.Equals("my.password", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private bool IsTestPrincipal(string userName)
+        {
+            return userName.Equals("my.user", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private bool IsTestPrincipal(ClaimsPrincipal claimsPrincipal)
+        {
+            var userName = claimsPrincipal.FindFirstValue(Claims.Nickname);
+            return userName?.Equals("my.user@domain.com", StringComparison.OrdinalIgnoreCase) == true;
+        }
+
+        private static readonly string TestUserId = Guid.NewGuid().ToString();
+
+        private static User CreateTestUser()
+        {
+            return new User
+            {
+                Id = TestUserId,
+                Name = "my.user@domain.com",
+                DisplayName = "John Doe",
+                Enabled = true,
+                LockedOut = false,
+                EmailAddress = "my.user@domain.com",
+                PhoneNumber = "+359123123123",
+                Changed = DateTime.Now.AddDays(-10),
+                PasswordChanged = DateTime.Now.AddDays(-15),
+                Groups = new string[] { "HO Software Development" },
+            };
+        }
+#endif
     }
 }
 #pragma warning restore CA1416 // Validate platform compatibility
