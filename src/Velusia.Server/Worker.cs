@@ -82,37 +82,6 @@ public class Worker : IHostedService
                     Requirements.Features.ProofKeyForCodeExchange
                 }
             },
-            new OpenIddictApplicationDescriptor
-            {
-                ClientId = "tan",
-                ClientSecret = "2F6418A5-FAC3-4FA9-9B55-4FBB2BBE645E",
-                ConsentType = ConsentTypes.Implicit,
-                DisplayName = "Internet Banking backoffice app",
-                PostLogoutRedirectUris =
-                {
-                    new Uri("https://localhost:44393/?logout=yes")
-                },
-                RedirectUris =
-                {
-                    new Uri("https://localhost:44393/signin-oidc")
-                },
-                Permissions =
-                {
-                    Permissions.Endpoints.Authorization,
-                    Permissions.Endpoints.Logout,
-                    Permissions.Endpoints.Token,
-                    Permissions.GrantTypes.AuthorizationCode,
-                    Permissions.GrantTypes.RefreshToken,
-                    Permissions.ResponseTypes.Code,
-                    Permissions.Scopes.Email,
-                    Permissions.Scopes.Profile,
-                    Permissions.Scopes.Roles
-                },
-                Requirements =
-                {
-                    Requirements.Features.ProofKeyForCodeExchange
-                }
-            },
         };
 
         await using var scope = _serviceProvider.CreateAsyncScope();
